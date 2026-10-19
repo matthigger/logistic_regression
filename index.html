@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logistic regression, visually</title>
+  <meta name="description" content="A line on the log-odds scale, squashed
+    by the sigmoid into a probability, and trained by gradient descent on
+    the cross-entropy loss.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 26 C14 26 18 6 29 6' fill='none' stroke='%237c3aed' stroke-width='3'/%3E%3Ccircle cx='7' cy='26' r='3' fill='%230a66ff'/%3E%3Ccircle cx='25' cy='6' r='3' fill='%23ff6b00'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Logistic regression, visually</h1>
+    <p class="sub">Draw a line on the log-odds scale, squash it into a
+      probability, and train it by walking downhill.</p>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-mode="model">Log odds &rarr;
+        probability</button>
+      <button class="tab" role="tab" data-mode="train">Training</button>
+    </nav>
+  </header>
+
+  <section class="intro card">
+    <div data-show="model">
+      <h2>A line, squashed into a probability</h2>
+      <p class="goal"><b>Model:</b> the log odds <i>z</i> is a line in
+        <i>x</i>, the same model as simple regression. The sigmoid
+        <i>&sigma;</i> squashes it into a probability between 0 and 1.</p>
+      <div class="formula">
+        <i>z</i> = <i>c</i><sub>0</sub> + <i>c</i><sub>1</sub><i>x</i>
+        <span class="sep"></span>
+        <i>p&#770;</i> = <i>P&#770;</i>(<i>Y</i> = 1 | <i>x</i>) =
+        <i>&sigma;</i>(<i>z</i>) =
+        <span class="frac"><span>1</span><span>1 + <i>e</i><sup>&minus;<i>z</i></sup></span></span>
+        <span class="sep"></span>
+        <i>z</i> = ln <span class="frac"><span><i>p&#770;</i></span><span>1
+          &minus; <i>p&#770;</i></span></span>
+      </div>
+      <p class="goal approach"><b>Predict</b> 1 when <i>p&#770;</i> &gt;
+        0.5, which is when <i>z</i> &gt; 0. The decision boundary is the
+        <i>x</i> where the line crosses 0: <i>x</i> =
+        &minus;<i>c</i><sub>0</sub> / <i>c</i><sub>1</sub>.</p>
+      <p class="muted">Each sample is filled by its true class <i>y</i> and
+        ringed by its predicted class, so a mistake is a dot of one color
+        in a ring of the other. Its loss is &minus;ln of the probability
+        the model gave its true class; the loss of <b>c</b> is the mean
+        over the samples (the cross-entropy, in nats).</p>
+    </div>
+    <div data-show="train">
+      <h2>Training: walk downhill on the loss</h2>
+      <p class="goal"><b>Goal:</b> choose <i>c</i><sub>0</sub> and
+        <i>c</i><sub>1</sub> with the smallest mean cross-entropy loss.
+        Unlike MSE, there is no formula for the best <b>c</b>.</p>
+      <p class="goal approach"><b>Approach:</b> the same as for MSE. Start
+        anywhere, step against the gradient, and repeat.</p>
+      <div class="formula">
+        loss(<b>c</b>) = &minus;<span class="frac"><span>1</span><span><i>n</i></span></span>
+        &sum;<sub><i>i</i></sub> [ <i>y<sub>i</sub></i> ln
+        <i>p&#770;<sub>i</sub></i> + (1 &minus; <i>y<sub>i</sub></i>)
+        ln(1 &minus; <i>p&#770;<sub>i</sub></i>) ]
+      </div>
+      <div class="formula">
+        &nabla;loss(<b>c</b>) =
+        <span class="frac"><span>1</span><span><i>n</i></span></span>
+        &sum;<sub><i>i</i></sub> (<i>p&#770;<sub>i</sub></i> &minus;
+        <i>y<sub>i</sub></i>)
+        <span class="colvec"><span>1</span><span><i>x<sub>i</sub></i></span></span>
+        <span class="sep"></span>
+        <b>c</b> &larr; <b>c</b> &minus; <i>&eta;</i> &nabla;loss(<b>c</b>)
+      </div>
+      <p class="muted">This has the same form as the MSE gradient
+        &minus;<span class="frac"><span>2</span><span><i>n</i></span></span>&sum;
+        <i>r<sub>i</sub></i><span class="colvec"><span>1</span><span><i>x<sub>i</sub></i></span></span>,
+        with the error now <i>p&#770;<sub>i</sub></i> &minus;
+        <i>y<sub>i</sub></i>: the red segment from each sample to the
+        sigmoid. The loss is in nats (ln). In bits (log<sub>2</sub>, as on
+        the problem sets) every loss and gradient is 1/ln 2 &asymp; 1.44
+        times larger: the same surface, and the same walk with <i>&eta;</i>
+        times ln 2.</p>
+    </div>
+
+    <div>
+      <h3>Try this</h3>
+      <ul class="try" data-show="model">
+        <li>In the log-odds panel, drag the right square handle up. What
+          happens to the sigmoid? Now drag it below the left one.
+          <details class="answer"><summary>Answer</summary>A larger slope
+            <i>c</i><sub>1</sub> makes the sigmoid steeper. A negative
+            <i>c</i><sub>1</sub> flips it: <i>p&#770;</i> now falls as
+            <i>x</i> grows.</details>
+        </li>
+        <li>Drag empty space in the log-odds panel up and down: only
+          <i>c</i><sub>0</sub> changes. Why does the sigmoid slide sideways
+          instead of up?
+          <details class="answer"><summary>Answer</summary>Raising every
+            <i>z</i> moves where the line crosses 0, the boundary
+            <i>x</i> = &minus;<i>c</i><sub>0</sub> /
+            <i>c</i><sub>1</sub>. The sigmoid can't rise above 1, so it
+            can only shift.</details>
+        </li>
+        <li>The dashed lines mark <i>z</i> = &plusmn;2 in both panels. What
+          probability is <i>z</i> = 2? What about <i>z</i> = 4 (read it on
+          the right edge of the log-odds panel)?
+          <details class="answer"><summary>Answer</summary>0.88 and 0.98.
+            Each +1 of log odds multiplies the odds
+            <i>p&#770;</i> / (1 &minus; <i>p&#770;</i>) by <i>e</i>
+            &asymp; 2.7.</details>
+        </li>
+        <li>Hover a ringed sample (a mistake) and a correct one. Compare
+          their losses.
+          <details class="answer"><summary>Answer</summary>A mistake gives
+            its true class a probability below 0.5, so its loss is above
+            ln 2 &asymp; 0.69. A confident mistake costs far more:
+            &minus;ln <i>p</i> grows without bound as <i>p</i> &rarr;
+            0.</details>
+        </li>
+        <li>Fit <b>c</b> by hand: make the loss as small as you can. Then
+          check <em>Show best fit</em>.</li>
+        <li>Click a sample to flip its class, or drag it sideways. Put one
+          deep in the other class's territory: how does the best fit
+          change?
+          <details class="answer"><summary>Answer</summary>It flattens
+            (smaller <i>c</i><sub>1</sub>). A steep sigmoid would make that
+            sample a confident mistake, which costs a lot, so the fit
+            hedges.</details>
+        </li>
+        <li>Turn on <em>Show true P(Y = 1 | x)</em>. Why is the truth a
+          sigmoid at all?
+          <details class="answer"><summary>Answer</summary>Each class's
+            <i>x</i> is drawn from a normal with the same spread. By
+            Bayes' rule the log odds are then exactly a line in <i>x</i>,
+            so the true probability is a sigmoid. The best fit estimates it
+            from 30 samples.</details>
+        </li>
+        <li>Raise <em>Separation</em> until the classes no longer overlap.
+          What happens to the best fit?
+          <details class="answer"><summary>Answer</summary>It disappears.
+            Any step in the gap gets every sample right, and a steeper step
+            is always more confident, so it always has a lower loss: there
+            is no best <b>c</b>. See what gradient descent does on the
+            Training tab.</details>
+        </li>
+      </ul>
+      <ul class="try" data-show="train">
+        <li>From <b>c</b> = <b>0</b> (every <i>p&#770;</i> = 0.5), press
+          <em>Gradient step</em> a few times. Which samples pull hardest on
+          <b>c</b>?
+          <details class="answer"><summary>Answer</summary>The badly
+            predicted ones, with the longest red segments
+            <i>p&#770;<sub>i</sub></i> &minus; <i>y<sub>i</sub></i>. A
+            sample already predicted close to its label barely
+            counts.</details>
+        </li>
+        <li>Press <em>Run</em>, then hover the trail on the surface to see
+          the sigmoid at each step.</li>
+        <li>Switch the right panel to <em>Log odds</em> and step. The line
+          moves as in regression, but what is it fitting?
+          <details class="answer"><summary>Answer</summary>Not the samples
+            themselves: their log odds would be &plusmn;&infin;. The loss
+            only cares about <i>&sigma;</i>(<i>z</i>) at each
+            sample.</details>
+        </li>
+        <li>Raise <i>&eta;</i> far to the right and press <em>Run</em>.
+          What does the walk do?
+          <details class="answer"><summary>Answer</summary>It overshoots
+            the valley and bounces around it without settling: the loss
+            chart turns to noise. Each gradient is an average of
+            (<i>p&#770;<sub>i</sub></i> &minus; <i>y<sub>i</sub></i>)
+            [1, <i>x<sub>i</sub></i>], which is bounded, so unlike MSE the
+            walk never blows up.</details>
+        </li>
+        <li>Slide <em>Separation</em> up until the badge says the classes
+          are separable, then press <em>Run</em>. What happens to
+          <b>c</b>, the loss and the sigmoid?
+          <details class="answer"><summary>Answer</summary><b>c</b> keeps
+            growing along a ray: the boundary settles in the gap while the
+            sigmoid sharpens toward a step. The loss falls toward 0 but
+            never gets there, so the run never converges. Regularization
+            (lesson 13) fixes this by charging for large
+            <b>c</b>.</details>
+        </li>
+        <li>With separable data, click a sample deep inside its class to
+          flip it, then <em>Run</em> again.
+          <details class="answer"><summary>Answer</summary>The classes
+            overlap again, so the loss has a minimum and the walk
+            converges.</details>
+        </li>
+        <li>Drag a sample far into the other class's territory. Watch the
+          surface's bottom move.</li>
+      </ul>
+    </div>
+  </section>
+
+  <main class="panel" data-show="model">
+    <div class="card plot">
+      <div class="plot-head">
+        <h3>Log odds</h3>
+        <span class="eq" id="md-eq-odds"></span>
+      </div>
+      <svg id="md-odds" aria-label="the log odds z against x"></svg>
+      <p class="hint">In either panel, drag a square handle to tilt the
+        model, or empty space to shift it. Drag a sample sideways; click it
+        to flip its class.</p>
+    </div>
+
+    <div class="card plot">
+      <div class="plot-head">
+        <h3>Probability</h3>
+        <span class="eq" id="md-eq-prob"></span>
+      </div>
+      <svg id="md-prob" aria-label="the probability against x"></svg>
+      <p class="key">
+        <span><i class="dot k0"></i> class 0</span>
+        <span><i class="dot k1"></i> class 1</span>
+        <span><i class="dot k0 p1"></i> ring: predicted</span>
+        <span><i class="ln model"></i> model</span>
+        <span><i class="ln best"></i> best fit</span>
+        <span><i class="ln truth"></i> true</span>
+        <span><i class="ln err"></i> error <i>p&#770;</i> &minus; <i>y</i></span>
+      </p>
+    </div>
+
+    <aside class="side">
+      <div class="card controls">
+        <label class="slider"><span class="tip" tabindex="0"
+          data-tip="How far apart the two classes' means are, in units of
+          their shared standard deviation. Close together, the classes
+          overlap and no line gets every sample right. Far apart, they stop
+          overlapping (separable) and the loss has no minimum.">Separation</span>
+          <input type="range" id="md-sep">
+          <span id="md-sepval" class="val"></span></label>
+        <p class="warn" id="md-sepbadge" hidden></p>
+        <label class="check"><input type="checkbox" id="md-best"> Show best
+          fit (min loss)</label>
+        <label class="check"><input type="checkbox" id="md-truth"> Show true
+          <i>P</i>(<i>Y</i> = 1 | <i>x</i>)</label>
+        <div class="buttons">
+          <button id="md-resample" title="Draw new samples">&#8635;
+            Resample</button>
+          <button id="md-reset" title="Undo drags and flips">Reset
+            data</button>
+        </div>
+      </div>
+      <div class="card readout" id="md-readout"></div>
+    </aside>
+  </main>
+
+  <main class="panel reg" data-show="train">
+    <div class="card plot">
+      <div class="plot-head">
+        <h3>Loss surface</h3>
+        <div class="seg small" role="radiogroup">
+          <button data-tr-view="contour" role="radio">Contour</button>
+          <button data-tr-view="3d" role="radio">3D</button>
+        </div>
+      </div>
+      <svg id="tr-surf" aria-label="loss over intercept and slope"></svg>
+      <p class="hint" id="tr-surf-hint"></p>
+    </div>
+
+    <div class="card plot">
+      <div class="plot-head">
+        <span class="eq" id="tr-eq"></span>
+        <div class="seg small" role="radiogroup">
+          <button data-tr-kind="prob" role="radio">Probability</button>
+          <button data-tr-kind="odds" role="radio">Log odds</button>
+        </div>
+      </div>
+      <svg id="tr-data" aria-label="samples and the current model"></svg>
+      <p class="key">
+        <span><i class="dot k0"></i> class 0</span>
+        <span><i class="dot k1"></i> class 1</span>
+        <span><i class="dot k0 p1"></i> ring: predicted</span>
+        <span><i class="ln model"></i> current</span>
+        <span><i class="ln best"></i> best fit</span>
+        <span><i class="ln err"></i> error <i>p&#770;</i> &minus; <i>y</i></span>
+      </p>
+    </div>
+
+    <aside class="side">
+      <div class="card controls">
+        <label class="slider"><span class="tip" tabindex="0"
+          data-tip="How far apart the two classes' means are, in units of
+          their shared standard deviation. Far apart, the classes stop
+          overlapping (separable): the loss has no minimum, and gradient
+          descent walks off forever.">Separation</span>
+          <input type="range" id="tr-sep">
+          <span id="tr-sepval" class="val"></span></label>
+        <p class="warn" id="tr-sepbadge" hidden></p>
+        <label class="slider"><span>Step <i>&eta;</i></span>
+          <input type="range" id="tr-eta">
+          <span id="tr-etaval" class="val"></span></label>
+        <div class="buttons">
+          <button id="tr-step" class="primary"
+            title="One step (space or &rarr;)">Gradient step</button>
+          <button id="tr-run">&#9654; Run</button>
+          <button id="tr-restart" title="Back to the start of this walk">
+            Reset start</button>
+        </div>
+        <div class="buttons">
+          <button id="tr-zero" title="Start again from c = 0">c = 0</button>
+          <button id="tr-resample" title="Draw new samples">&#8635;
+            Resample</button>
+          <button id="tr-reset" title="Undo drags and flips">Reset
+            data</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="card readout below" id="tr-readout"></div>
+
+    <div class="card below">
+      <div class="plot-head">
+        <h3>Loss by step</h3>
+        <div class="seg small" role="radiogroup">
+          <button data-tr-log="1" role="radio">Log</button>
+          <button data-tr-log="0" role="radio">Linear</button>
+        </div>
+      </div>
+      <svg id="tr-chart" class="chart" aria-label="loss against step"></svg>
+    </div>
+  </main>
+
+  <footer>
+    <a href="https://github.com/matthigger/logistic_regression">Source on
+      GitHub</a>
+    &middot;
+    <span id="build"></span>
+  </footer>
+
+  <script src="js/version.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/gd.js"></script>
+  <script src="js/surface.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/plots.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/training.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
