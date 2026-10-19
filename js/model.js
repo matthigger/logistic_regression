@@ -14,10 +14,14 @@ const ModelTab = (function () {
     kind, state,
     onSetC: c => { S.c = c; render(); },
     onHover: i => { if (i !== S.hover) { S.hover = i; render(); } },
-    onDataDone: () => { panels.forEach(p => p.handles()); render(); },
+    onDataDone: () => {
+      panels.forEach(p => { if (p.handles) p.handles(); });
+      render();
+    },
   });
   const panels = [new DataPanel($("md-odds"), opts("odds")),
-    new DataPanel($("md-prob"), opts("prob"))];
+    new DataPanel($("md-prob"), opts("prob")),
+    new DataStrip($("md-strip"), opts("strip"))];
 
   function visible() { return !$("md-odds").closest("[hidden]"); }
 
@@ -48,18 +52,31 @@ const ModelTab = (function () {
       ["best loss", obj.cstar ? fmt(obj.fmin)
         : "none (separable)"],
     ];
-    const i = S.hover;
-    if (i !== null && i < n) {
-      const z = c[0] + c[1] * x[i], p = sigmoid(z);
-      const loss = y[i] ? softplus(-z) : softplus(z);
-      rows.push([`sample: <i>x</i> = ${fmt(x[i])}, <i>y</i> = ${y[i]}`,
-        `<i>z</i> = ${fmt(z)}, <i>p̂</i> = ${fmt(p)}`]);
-      rows.push([`its loss −ln ${y[i] ? "<i>p̂</i>"
-        : "(1 − <i>p̂</i>)"}`, fmt(loss)]);
-    }
     $("md-readout").innerHTML = rows.map(([k, v]) =>
       `<div class="row"><span>${k}</span><span class="val">${v}</span></div>`
     ).join("");
+  }
+
+  /** Where a sample's numbers come from: x, then z, then p̂, then loss. */
+  function pipeline() {
+    const i = S.hover, c = S.c, arr = '<span class="arr">→</span>';
+    if (i === null || i >= Data.n) {
+      $("md-pipe").innerHTML = "Each sample is a pair (<i>x<sub>i</sub></i>, "
+        + "<i>y<sub>i</sub></i>). The model scores it with its log odds "
+        + "<i>z<sub>i</sub></i> = <i>c</i>₀ + <i>c</i>₁<i>x<sub>i</sub></i> "
+        + "(left), then turns that into a probability <i>p̂<sub>i</sub></i> "
+        + "= σ(<i>z<sub>i</sub></i>) (right). Hover a sample to follow it.";
+      return;
+    }
+    const x = Data.x[i], y = Data.y[i], z = c[0] + c[1] * x;
+    const p = sigmoid(z), loss = y ? softplus(-z) : softplus(z);
+    const sign = c[1] < 0 ? "−" : "+";
+    $("md-pipe").innerHTML = `<i>x</i> = ${fmt(x)}${arr}`
+      + `<i>z</i> = ${fmt(c[0])} ${sign} ${fmt(Math.abs(c[1]))} · `
+      + `${fmt(x)} = <b>${fmt(z)}</b>${arr}`
+      + `<i>p̂</i> = σ(${fmt(z)}) = <b>${fmt(p)}</b>${arr}`
+      + `true <i>y</i> = ${y}, so its loss is −ln `
+      + `${y ? "<i>p̂</i>" : "(1 − <i>p̂</i>)"} = <b>${fmt(loss)}</b>`;
   }
 
   function syncControls() {
@@ -72,6 +89,7 @@ const ModelTab = (function () {
     panels.forEach(p => p.render());
     equation();
     readout();
+    pipeline();
     syncControls();
   }
 

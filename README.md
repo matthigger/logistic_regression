@@ -7,8 +7,11 @@ labels y ∈ {0, 1}, in the style of the
 [gradient descent demo](https://matthigger.github.io/gradient_descent/).
 Two tabs:
 
-- **Log odds → probability** (`#model`). The model drawn twice, side by
-  side: the line z = c₀ + c₁x on the log-odds scale, and the sigmoid
+- **Log odds → probability** (`#model`). The intro motivates the model:
+  regressing the probability directly is unbounded, so regress the log
+  odds instead. A strip shows the raw data (xᵢ, yᵢ); hovering a sample
+  walks it through xᵢ → zᵢ → p̂ᵢ → its loss, with read-off guides in both
+  panels below. The model is drawn twice, side by side: the line z = c₀ + c₁x on the log-odds scale, and the sigmoid
   p̂ = σ(z) on the probability scale. Drag a square handle in either panel
   to pivot the model, or empty space to change c₀ alone; both panels
   follow. Guides mark z = 0 ↔ p = 0.5 and z = ±2 ↔ p = 0.12 / 0.88, and the

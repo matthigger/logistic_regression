@@ -30,6 +30,13 @@ sidebar, footer build stamp) and `pages.yml`. Written for lesson 11
 
 ## Tab 1: Log odds → probability (`#model`)
 
+Intro opens with the problem (direct approach: P̂(Y = 1 | x) = c · x is
+unbounded; doubling an 80% sample gives 160%) and the approach (regress
+the log odds instead). Four "Try this" items, the simplest. Above the two
+panels, a strip of the raw data (xᵢ, yᵢ) in one lane per class, no model;
+hovering a sample (anywhere) writes its chain x → z = c₀ + c₁x → p̂ = σ(z)
+→ loss under the strip and draws read-off guides in both panels.
+
 Left: x against z with the line, guides at z = 0 and ±2, right-edge axis
 giving σ of each z tick, decision boundary x = −c₀/c₁ as a vertical line.
 Right: x against p with the sigmoid, error segments yᵢ → p̂ᵢ, and the same

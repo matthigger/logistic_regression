@@ -24,29 +24,36 @@
 
   <section class="intro card">
     <div data-show="model">
-      <h2>A line, squashed into a probability</h2>
-      <p class="goal"><b>Model:</b> the log odds <i>z</i> is a line in
-        <i>x</i>, the same model as simple regression. The sigmoid
-        <i>&sigma;</i> squashes it into a probability between 0 and 1.</p>
+      <h2>Estimating class probabilities (a classifier) with a regression
+        model</h2>
+      <p class="goal problem"><b>Problem (direct approach):</b> if we
+        estimate <i>P&#770;</i>(<i>Y</i> = 1 | <b>x</b>) = <b>c</b> &middot;
+        <b>x</b>, the estimates aren't bounded. If some sample
+        <b>x</b>&prime; gets an 80% chance of class 1,
+        <i>P&#770;</i>(<i>Y</i> = 1 | <b>x</b>&prime;) = <b>c</b> &middot;
+        <b>x</b>&prime; = 0.8, then doubling it gives a 160% chance:
+        <i>P&#770;</i>(<i>Y</i> = 1 | 2<b>x</b>&prime;) = <b>c</b> &middot;
+        2<b>x</b>&prime; = 1.6. The linearity is the problem!</p>
+      <p class="goal approach"><b>Approach:</b> instead of using regression
+        to estimate the probability directly, use it to estimate the log
+        odds <i>z</i> = ln <span class="frac"><span><i>P</i>(<i>Y</i> = 1 |
+        <i>x</i>)</span><span><i>P</i>(<i>Y</i> = 0 | <i>x</i>)</span></span>,
+        which can be any number. With one feature, that gives the
+        model</p>
       <div class="formula">
         <i>z</i> = <i>c</i><sub>0</sub> + <i>c</i><sub>1</sub><i>x</i>
-        <span class="sep"></span>
+        <span class="implies">&rArr;</span>
         <i>p&#770;</i> = <i>P&#770;</i>(<i>Y</i> = 1 | <i>x</i>) =
         <i>&sigma;</i>(<i>z</i>) =
         <span class="frac"><span>1</span><span>1 + <i>e</i><sup>&minus;<i>z</i></sup></span></span>
-        <span class="sep"></span>
-        <i>z</i> = ln <span class="frac"><span><i>p&#770;</i></span><span>1
-          &minus; <i>p&#770;</i></span></span>
       </div>
-      <p class="goal approach"><b>Predict</b> 1 when <i>p&#770;</i> &gt;
-        0.5, which is when <i>z</i> &gt; 0. The decision boundary is the
-        <i>x</i> where the line crosses 0: <i>x</i> =
-        &minus;<i>c</i><sub>0</sub> / <i>c</i><sub>1</sub>.</p>
-      <p class="muted">Each sample is filled by its true class <i>y</i> and
-        ringed by its predicted class, so a mistake is a dot of one color
-        in a ring of the other. Its loss is &minus;ln of the probability
-        the model gave its true class; the loss of <b>c</b> is the mean
-        over the samples (the cross-entropy, in nats).</p>
+      <p><b>Predict</b> 1 when <i>p&#770;</i> &gt; 0.5, which is when
+        <i>z</i> &gt; 0. The decision boundary is the <i>x</i> where the
+        line crosses 0: <i>x</i> = &minus;<i>c</i><sub>0</sub> /
+        <i>c</i><sub>1</sub>.</p>
+      <p class="muted">A sample's loss is &minus;ln of the probability the
+        model gave its true class; the loss of <b>c</b> is the mean over the
+        samples (the cross-entropy, in nats).</p>
     </div>
     <div data-show="train">
       <h2>Training: walk downhill on the loss</h2>
@@ -84,21 +91,15 @@
     <div>
       <h3>Try this</h3>
       <ul class="try" data-show="model">
+        <li>Hover a sample in the data strip and follow it: its
+          <i>x</i> gives a score <i>z</i> on the line (left), and the
+          sigmoid turns that into <i>p&#770;</i> (right).</li>
         <li>In the log-odds panel, drag the right square handle up. What
           happens to the sigmoid? Now drag it below the left one.
           <details class="answer"><summary>Answer</summary>A larger slope
             <i>c</i><sub>1</sub> makes the sigmoid steeper. A negative
             <i>c</i><sub>1</sub> flips it: <i>p&#770;</i> now falls as
             <i>x</i> grows.</details>
-        </li>
-        <li>Drag empty space in the log-odds panel up and down: only
-          <i>c</i><sub>0</sub> changes. Why does the sigmoid slide sideways
-          instead of up?
-          <details class="answer"><summary>Answer</summary>Raising every
-            <i>z</i> moves where the line crosses 0, the boundary
-            <i>x</i> = &minus;<i>c</i><sub>0</sub> /
-            <i>c</i><sub>1</sub>. The sigmoid can't rise above 1, so it
-            can only shift.</details>
         </li>
         <li>The dashed lines mark <i>z</i> = &plusmn;2 in both panels. What
           probability is <i>z</i> = 2? What about <i>z</i> = 4 (read it on
@@ -108,40 +109,8 @@
             <i>p&#770;</i> / (1 &minus; <i>p&#770;</i>) by <i>e</i>
             &asymp; 2.7.</details>
         </li>
-        <li>Hover a ringed sample (a mistake) and a correct one. Compare
-          their losses.
-          <details class="answer"><summary>Answer</summary>A mistake gives
-            its true class a probability below 0.5, so its loss is above
-            ln 2 &asymp; 0.69. A confident mistake costs far more:
-            &minus;ln <i>p</i> grows without bound as <i>p</i> &rarr;
-            0.</details>
-        </li>
         <li>Fit <b>c</b> by hand: make the loss as small as you can. Then
           check <em>Show best fit</em>.</li>
-        <li>Click a sample to flip its class, or drag it sideways. Put one
-          deep in the other class's territory: how does the best fit
-          change?
-          <details class="answer"><summary>Answer</summary>It flattens
-            (smaller <i>c</i><sub>1</sub>). A steep sigmoid would make that
-            sample a confident mistake, which costs a lot, so the fit
-            hedges.</details>
-        </li>
-        <li>Turn on <em>Show true P(Y = 1 | x)</em>. Why is the truth a
-          sigmoid at all?
-          <details class="answer"><summary>Answer</summary>Each class's
-            <i>x</i> is drawn from a normal with the same spread. By
-            Bayes' rule the log odds are then exactly a line in <i>x</i>,
-            so the true probability is a sigmoid. The best fit estimates it
-            from 30 samples.</details>
-        </li>
-        <li>Raise <em>Separation</em> until the classes no longer overlap.
-          What happens to the best fit?
-          <details class="answer"><summary>Answer</summary>It disappears.
-            Any step in the gap gets every sample right, and a steeper step
-            is always more confident, so it always has a lower loss: there
-            is no best <b>c</b>. See what gradient descent does on the
-            Training tab.</details>
-        </li>
       </ul>
       <ul class="try" data-show="train">
         <li>From <b>c</b> = <b>0</b> (every <i>p&#770;</i> = 0.5), press
@@ -193,7 +162,15 @@
     </div>
   </section>
 
-  <main class="panel" data-show="model">
+  <main class="panel model" data-show="model">
+    <div class="card plot strip">
+      <div class="plot-head">
+        <h3>Data (<i>x<sub>i</sub></i>, <i>y<sub>i</sub></i>)</h3>
+      </div>
+      <svg id="md-strip" aria-label="the samples along x, by class"></svg>
+      <p class="pipe" id="md-pipe"></p>
+    </div>
+
     <div class="card plot">
       <div class="plot-head">
         <h3>Log odds</h3>

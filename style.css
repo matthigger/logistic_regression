@@ -496,3 +496,23 @@ svg.orbit { cursor: grab; }
 .key .ln.truth { border-top: 3px dotted #15803d; }
 .key .ln.err { width: 3px; height: 14px; border-top: 0;
   background: #dc2626; opacity: .6; }
+.s.raw { stroke: #fff; stroke-width: 1.5; }
+.s.raw.on { stroke: var(--ink); stroke-width: 2; }
+.lane { stroke: #cfd4dd; stroke-width: 1; }
+.readoff { fill: none; stroke: var(--model); stroke-width: 1.5;
+  stroke-dasharray: 2 3; pointer-events: none; }
+.panel.model > .strip { grid-column: 1 / 3; }
+.panel.model > .side { grid-column: 3; grid-row: 1 / span 2; }
+.strip svg { max-height: none; }
+.pipe {
+  margin: 4px 2px 0;
+  font-size: .95rem;
+  min-height: 2.9em;
+}
+.pipe i, .pipe .m { font-family: "STIX Two Text", Georgia, serif; }
+.pipe .arr { color: var(--muted); margin: 0 .35em; }
+.goal.problem { background: #fef2f2; border-left-color: var(--wrong); }
+@media (max-width: 1240px) {
+  .panel.model > .strip, .panel.model > .side { grid-column: 1 / -1;
+    grid-row: auto; }
+}

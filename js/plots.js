@@ -9,7 +9,8 @@
 // other. In the probability view the handle moves p at its x, which is the
 // same knob through z = logit(p). Dragging empty space changes c0 alone:
 // up or down in the log-odds view, left or right in the probability view.
-// Drag a sample sideways to move it; click it to flip its class.
+// Drag a sample sideways to move it; click it to flip its class. A strip
+// above them (DataStrip) shows the raw data (x_i, y_i) without the model.
 
 const DP = { w: 560, h: 560, x0: 62, x1: 498, y0: 14, y1: 498 };
 const Z_LIM = 6;
@@ -196,11 +197,17 @@ class DataPanel {
     node("polyline", { points: pts.join(" "), class: `curve ${cls}` }, g);
   }
 
-  /** Label next to the hovered sample: its z, or its p and loss. */
+  /**
+   * Label next to the hovered sample (its z, or its p and loss), with
+   * dotted guides reading its value off the axes.
+   */
   sampleTip(g, st, z) {
     const i = st.hover, x = Data.x[i], y = Data.y[i];
     const odds = this.kind === "odds";
     const p = sigmoid(z[i]);
+    const gx = this.sx(x), gy = this.sv(odds ? z[i] : p);
+    node("polyline", { points: `${gx},${DP.y1} ${gx},${gy} ${DP.x0},${gy}`,
+      class: "readoff" }, g);
     const loss = y ? softplus(-z[i]) : softplus(z[i]);
     const str = odds ? `z = ${fmt(z[i])}`
       : `p̂ = ${fmt(p)}, loss = −ln ${y ? "p̂" : "(1 − p̂)"} = ${fmt(loss)}`;
@@ -279,6 +286,112 @@ class DataPanel {
       this.opts.onSetC([c[0] - c[1] * (v - d.at), c[1]]);
       d.at = v;
     }
+  }
+}
+
+// --------------------------------------------------------- data strip
+
+const ST = { w: 1140, h: 124, x0: 62, x1: 1110, y0: 8, y1: 84 };
+
+/**
+ * The raw data (x_i, y_i): each sample on an x axis, in a lane for its
+ * class. The model plays no part here. Drag a sample sideways to move it;
+ * click it to flip its class.
+ */
+class DataStrip {
+  /**
+   * Args:
+   *   svg (SVGElement): the strip's SVG
+   *   opts (object): { state(): { hover }, onHover(i), onDataDone() }, as
+   *     for DataPanel
+   */
+  constructor(svg, opts) {
+    this.svg = svg;
+    this.opts = opts;
+    this.drag = null;
+    svg.setAttribute("viewBox", `0 0 ${ST.w} ${ST.h}`);
+    this.fitX();
+    this.listen();
+  }
+
+  fitX() {
+    const xs = Data.x;
+    const lo = Math.min(...xs), hi = Math.max(...xs), pad = 0.08 * (hi - lo);
+    this.dom = [lo - pad, hi + pad];
+  }
+
+  sx(v) {
+    return ST.x0 + (v - this.dom[0]) / (this.dom[1] - this.dom[0])
+      * (ST.x1 - ST.x0);
+  }
+  ix(px) {
+    return this.dom[0] + (px - ST.x0) / (ST.x1 - ST.x0)
+      * (this.dom[1] - this.dom[0]);
+  }
+  lane(y) { return y ? ST.y0 + 19 : ST.y1 - 19; }
+
+  render() {
+    const svg = this.svg, hover = this.opts.state().hover;
+    const x = Data.x, y = Data.y;
+    svg.innerHTML = "";
+    for (const t of ticks(...this.dom, 12)) {
+      node("line", { x1: this.sx(t), x2: this.sx(t), y1: ST.y0, y2: ST.y1,
+        class: "grid" }, svg);
+      text(svg, this.sx(t), ST.y1 + 17, fmt(t),
+        { class: "tick", "text-anchor": "middle" });
+    }
+    node("rect", { x: ST.x0, y: ST.y0, width: ST.x1 - ST.x0,
+      height: ST.y1 - ST.y0, class: "frame" }, svg);
+    for (const k of [0, 1]) {
+      node("line", { x1: ST.x0, x2: ST.x1, y1: this.lane(k),
+        y2: this.lane(k), class: "lane" }, svg);
+      text(svg, ST.x0 - 8, this.lane(k) + 5, `y = ${k}`,
+        { class: "axis-label sym", "text-anchor": "end" });
+    }
+    text(svg, (ST.x0 + ST.x1) / 2, ST.y1 + 36, "x",
+      { class: "axis-label sym", "text-anchor": "middle" });
+    const order = x.map((_, i) => i).filter(i => i !== hover);
+    if (hover !== null && hover < x.length) order.push(hover);
+    for (const i of order) {
+      node("circle", { cx: this.sx(x[i]), cy: this.lane(y[i]), r: 7,
+        class: `s raw k${y[i]}${i === hover ? " on" : ""}`, "data-i": i },
+        svg);
+    }
+  }
+
+  listen() {
+    const svg = this.svg;
+    svg.addEventListener("pointerdown", e => {
+      if (e.button !== 0 || !e.target.classList.contains("s")) return;
+      const p = svgPoint(svg, e);
+      this.drag = { i: +e.target.dataset.i, x0: p.x, moved: false };
+      svg.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    svg.addEventListener("pointermove", e => {
+      const d = this.drag;
+      if (!d) {
+        const t = e.target;
+        this.opts.onHover(t.classList.contains("s") ? +t.dataset.i : null);
+        return;
+      }
+      const p = svgPoint(svg, e);
+      if (!d.moved && Math.abs(p.x - d.x0) < 4) return;
+      d.moved = true;
+      Data.move(d.i, clamp(this.ix(p.x), ...this.dom));
+    });
+    svg.addEventListener("pointerleave", () => {
+      if (!this.drag) this.opts.onHover(null);
+    });
+    const end = () => {
+      const d = this.drag;
+      this.drag = null;
+      if (!d) return;
+      if (d.moved) this.opts.onDataDone();
+      else Data.flip(d.i);
+    };
+    svg.addEventListener("pointerup", end);
+    svg.addEventListener("pointercancel", end);
   }
 }
 
