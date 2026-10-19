@@ -94,8 +94,9 @@
         <li>Hover a sample in the data strip and follow it: its
           <i>x</i> gives a score <i>z</i> on the line (left), and the
           sigmoid turns that into <i>p&#770;</i> (right).</li>
-        <li>In the log-odds panel, drag the right square handle up. What
-          happens to the sigmoid? Now drag it below the left one.
+        <li>Switch the probability panel to <em>x</em>. In the log-odds
+          panel, drag the right square handle up. What happens to the
+          sigmoid? Now drag it below the left one.
           <details class="answer"><summary>Answer</summary>A larger slope
             <i>w</i><sub>1</sub> makes the sigmoid steeper. A negative
             <i>w</i><sub>1</sub> flips it: <i>p&#770;</i> now falls as
@@ -130,15 +131,6 @@
             themselves: their log odds would be &plusmn;&infin;. The loss
             only cares about <i>&sigma;</i>(<i>z</i>) at each
             sample.</details>
-        </li>
-        <li>Raise <i>&eta;</i> far to the right and press <em>Run</em>.
-          What does the walk do?
-          <details class="answer"><summary>Answer</summary>It overshoots
-            the valley and bounces around it without settling: the loss
-            chart turns to noise. Each gradient is an average of
-            (<i>p&#770;<sub>i</sub></i> &minus; <i>y<sub>i</sub></i>)
-            [1, <i>x<sub>i</sub></i>], which is bounded, so unlike MSE the
-            walk never blows up.</details>
         </li>
         <li>Slide <em>Separation</em> up until the badge says the classes
           are separable, then press <em>Run</em>. What happens to
