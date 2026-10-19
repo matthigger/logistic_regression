@@ -44,7 +44,7 @@ guides (p = 0.5, 0.12, 0.88) and boundary. Handles at the 25th/75th
 x-percentiles pivot the model; in the probability panel a handle sets p at
 its x (z = logit p). Empty-space drag changes c₀ alone (vertical in log
 odds, horizontal in probability). Hover a sample: its z, p̂ and loss in
-both panels and the readout. Readout: c, boundary, accuracy, loss, best
+both panels. Readout: c, boundary, accuracy, loss, best
 loss (or "none (separable)").
 
 ## Tab 2: Training (`#training`)
