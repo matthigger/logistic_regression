@@ -54,7 +54,7 @@ class Runner {
     const k = this.steps, s = k === 1 ? "" : "s";
     const capped = this.obj.separable
       ? `Stopped after ${k} steps. The classes are separable, so the loss `
-        + "keeps falling as c grows: there is no minimum to reach."
+        + "keeps falling as w grows: there is no minimum to reach."
       : `Stopped after ${k} steps, not yet converged.`;
     return {
       converged: k ? `Converged in ${k} step${s}.` : "At the minimum.",

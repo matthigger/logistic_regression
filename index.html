@@ -27,12 +27,12 @@
       <h2>Estimating class probabilities (a classifier) with a regression
         model</h2>
       <p class="goal problem"><b>Problem (direct approach):</b> if we
-        estimate <i>P&#770;</i>(<i>Y</i> = 1 | <b>x</b>) = <b>c</b> &middot;
+        estimate <i>P&#770;</i>(<i>Y</i> = 1 | <b>x</b>) = <b>w</b> &middot;
         <b>x</b>, the estimates aren't bounded. If some sample
         <b>x</b>&prime; gets an 80% chance of class 1,
-        <i>P&#770;</i>(<i>Y</i> = 1 | <b>x</b>&prime;) = <b>c</b> &middot;
+        <i>P&#770;</i>(<i>Y</i> = 1 | <b>x</b>&prime;) = <b>w</b> &middot;
         <b>x</b>&prime; = 0.8, then doubling it gives a 160% chance:
-        <i>P&#770;</i>(<i>Y</i> = 1 | 2<b>x</b>&prime;) = <b>c</b> &middot;
+        <i>P&#770;</i>(<i>Y</i> = 1 | 2<b>x</b>&prime;) = <b>w</b> &middot;
         2<b>x</b>&prime; = 1.6. The linearity is the problem!</p>
       <p class="goal approach"><b>Approach:</b> instead of using regression
         to estimate the probability directly, use it to estimate the log
@@ -41,7 +41,7 @@
         which can be any number. With one feature, that gives the
         model</p>
       <div class="formula">
-        <i>z</i> = <i>c</i><sub>0</sub> + <i>c</i><sub>1</sub><i>x</i>
+        <i>z</i> = <i>w</i><sub>0</sub> + <i>w</i><sub>1</sub><i>x</i>
         <span class="implies">&rArr;</span>
         <i>p&#770;</i> = <i>P&#770;</i>(<i>Y</i> = 1 | <i>x</i>) =
         <i>&sigma;</i>(<i>z</i>) =
@@ -49,33 +49,33 @@
       </div>
       <p><b>Predict</b> 1 when <i>p&#770;</i> &gt; 0.5, which is when
         <i>z</i> &gt; 0. The decision boundary is the <i>x</i> where the
-        line crosses 0: <i>x</i> = &minus;<i>c</i><sub>0</sub> /
-        <i>c</i><sub>1</sub>.</p>
+        line crosses 0: <i>x</i> = &minus;<i>w</i><sub>0</sub> /
+        <i>w</i><sub>1</sub>.</p>
       <p class="muted">A sample's loss is &minus;ln of the probability the
-        model gave its true class; the loss of <b>c</b> is the mean over the
+        model gave its true class; the loss of <b>w</b> is the mean over the
         samples (the cross-entropy, in nats).</p>
     </div>
     <div data-show="train">
       <h2>Training: walk downhill on the loss</h2>
-      <p class="goal"><b>Goal:</b> choose <i>c</i><sub>0</sub> and
-        <i>c</i><sub>1</sub> with the smallest mean cross-entropy loss.
-        Unlike MSE, there is no formula for the best <b>c</b>.</p>
+      <p class="goal"><b>Goal:</b> choose <i>w</i><sub>0</sub> and
+        <i>w</i><sub>1</sub> with the smallest mean cross-entropy loss.
+        Unlike MSE, there is no formula for the best <b>w</b>.</p>
       <p class="goal approach"><b>Approach:</b> the same as for MSE. Start
         anywhere, step against the gradient, and repeat.</p>
       <div class="formula">
-        loss(<b>c</b>) = &minus;<span class="frac"><span>1</span><span><i>n</i></span></span>
+        loss(<b>w</b>) = &minus;<span class="frac"><span>1</span><span><i>n</i></span></span>
         &sum;<sub><i>i</i></sub> [ <i>y<sub>i</sub></i> ln
         <i>p&#770;<sub>i</sub></i> + (1 &minus; <i>y<sub>i</sub></i>)
         ln(1 &minus; <i>p&#770;<sub>i</sub></i>) ]
       </div>
       <div class="formula">
-        &nabla;loss(<b>c</b>) =
+        &nabla;loss(<b>w</b>) =
         <span class="frac"><span>1</span><span><i>n</i></span></span>
         &sum;<sub><i>i</i></sub> (<i>p&#770;<sub>i</sub></i> &minus;
         <i>y<sub>i</sub></i>)
         <span class="colvec"><span>1</span><span><i>x<sub>i</sub></i></span></span>
         <span class="sep"></span>
-        <b>c</b> &larr; <b>c</b> &minus; <i>&eta;</i> &nabla;loss(<b>c</b>)
+        <b>w</b> &larr; <b>w</b> &minus; <i>&eta;</i> &nabla;loss(<b>w</b>)
       </div>
       <p class="muted">This has the same form as the MSE gradient
         &minus;<span class="frac"><span>2</span><span><i>n</i></span></span>&sum;
@@ -97,25 +97,25 @@
         <li>In the log-odds panel, drag the right square handle up. What
           happens to the sigmoid? Now drag it below the left one.
           <details class="answer"><summary>Answer</summary>A larger slope
-            <i>c</i><sub>1</sub> makes the sigmoid steeper. A negative
-            <i>c</i><sub>1</sub> flips it: <i>p&#770;</i> now falls as
+            <i>w</i><sub>1</sub> makes the sigmoid steeper. A negative
+            <i>w</i><sub>1</sub> flips it: <i>p&#770;</i> now falls as
             <i>x</i> grows.</details>
         </li>
-        <li>The dashed lines mark <i>z</i> = &plusmn;2 in both panels. What
-          probability is <i>z</i> = 2? What about <i>z</i> = 4 (read it on
-          the right edge of the log-odds panel)?
+        <li>Read the right edge of the log-odds panel: what probability is
+          <i>z</i> = 2? <i>z</i> = 4? Find the same points on the
+          sigmoid.
           <details class="answer"><summary>Answer</summary>0.88 and 0.98.
             Each +1 of log odds multiplies the odds
             <i>p&#770;</i> / (1 &minus; <i>p&#770;</i>) by <i>e</i>
             &asymp; 2.7.</details>
         </li>
-        <li>Fit <b>c</b> by hand: make the loss as small as you can. Then
+        <li>Fit <b>w</b> by hand: make the loss as small as you can. Then
           check <em>Show best fit</em>.</li>
       </ul>
       <ul class="try" data-show="train">
-        <li>From <b>c</b> = <b>0</b> (every <i>p&#770;</i> = 0.5), press
+        <li>From <b>w</b> = <b>0</b> (every <i>p&#770;</i> = 0.5), press
           <em>Gradient step</em> a few times. Which samples pull hardest on
-          <b>c</b>?
+          <b>w</b>?
           <details class="answer"><summary>Answer</summary>The badly
             predicted ones, with the longest red segments
             <i>p&#770;<sub>i</sub></i> &minus; <i>y<sub>i</sub></i>. A
@@ -142,13 +142,13 @@
         </li>
         <li>Slide <em>Separation</em> up until the badge says the classes
           are separable, then press <em>Run</em>. What happens to
-          <b>c</b>, the loss and the sigmoid?
-          <details class="answer"><summary>Answer</summary><b>c</b> keeps
+          <b>w</b>, the loss and the sigmoid?
+          <details class="answer"><summary>Answer</summary><b>w</b> keeps
             growing along a ray: the boundary settles in the gap while the
             sigmoid sharpens toward a step. The loss falls toward 0 but
             never gets there, so the run never converges. Regularization
             (lesson 13) fixes this by charging for large
-            <b>c</b>.</details>
+            <b>w</b>.</details>
         </li>
         <li>With separable data, click a sample deep inside its class to
           flip it, then <em>Run</em> again.
@@ -178,7 +178,8 @@
       </div>
       <svg id="md-odds" aria-label="the log odds z against x"></svg>
       <p class="hint">In either panel, drag a square handle to tilt the
-        model, or empty space to shift it. Drag a sample sideways; click it
+        line, or empty space to shift it. The probability panel plots
+        against <i>z</i> (the sigmoid itself) or <i>x</i>. Drag a sample sideways; click it
         to flip its class.</p>
     </div>
 
@@ -186,15 +187,20 @@
       <div class="plot-head">
         <h3>Probability</h3>
         <span class="eq" id="md-eq-prob"></span>
+        <div class="seg small" role="radiogroup"
+          title="Horizontal axis: z or x">
+          <button data-md-axis="z" role="radio"><i>z</i></button>
+          <button data-md-axis="x" role="radio"><i>x</i></button>
+        </div>
       </div>
-      <svg id="md-prob" aria-label="the probability against x"></svg>
+      <svg id="md-prob" aria-label="the probability against z or x"></svg>
       <p class="key">
         <span><i class="dot k0"></i> class 0</span>
         <span><i class="dot k1"></i> class 1</span>
         <span><i class="dot k0 p1"></i> ring: predicted</span>
         <span><i class="ln model"></i> model</span>
-        <span><i class="ln best"></i> best fit</span>
-        <span><i class="ln truth"></i> true</span>
+        <span class="xonly"><i class="ln best"></i> best fit</span>
+        <span class="xonly"><i class="ln truth"></i> true</span>
         <span><i class="ln err"></i> error <i>p&#770;</i> &minus; <i>y</i></span>
       </p>
     </div>
@@ -277,7 +283,7 @@
             Reset start</button>
         </div>
         <div class="buttons">
-          <button id="tr-zero" title="Start again from c = 0">c = 0</button>
+          <button id="tr-zero" title="Start again from w = 0">w = 0</button>
           <button id="tr-resample" title="Draw new samples">&#8635;
             Resample</button>
           <button id="tr-reset" title="Undo drags and flips">Reset

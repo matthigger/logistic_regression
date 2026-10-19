@@ -1,12 +1,14 @@
-// Training tab: the loss surface over (c0, c1) on the left, the data with
-// the current model on the right (probability or log-odds view), linked
-// both ways, and gradient descent walking downhill.
+// Training tab: the loss surface over the weights (w0, w1; c in the code)
+// on the left, the data with the current model on the right (probability
+// or log-odds view, against x), linked both ways, and gradient descent
+// walking downhill.
 
 const TrainTab = (function () {
   const ETA_LO = 0.01, ETA_HI = 100;
   const START = [0, 0];
 
-  const S = { view: "contour", log: true, kind: "prob", hover: null };
+  const S = { view: "contour", log: true, kind: "prob", hover: null,
+    zr: null };
   let obj, runner, stopRun = null;
 
   const $ = id => document.getElementById(id);
@@ -14,7 +16,7 @@ const TrainTab = (function () {
   const etaInput = $("tr-eta");
   const eta = etaSlider(etaInput, ETA_LO, ETA_HI);
   const view = new LossView($("tr-surf"), {
-    labels: ["c₀ (intercept)", "c₁ (slope)"], fname: "loss",
+    labels: ["w₀ (intercept)", "w₁ (slope)"], fname: "loss",
     onSet: c => setC(c),
     onHover: () => render(),
   });
@@ -22,7 +24,8 @@ const TrainTab = (function () {
     kind: S.kind,
     state: () => ({ c: shown(), best: obj.cstar, truth: Data.truth(),
       showBest: true, showTruth: false, hover: S.hover,
-      handles: hovered() === null }),
+      handles: hovered() === null, zr: S.zr }),
+    onDragEnd: () => render(),
     onSetC: c => setC(c),
     onHover: i => { if (i !== S.hover) { S.hover = i; render(); } },
     onDataDone: () => { panel.handles(); render(); },
@@ -36,7 +39,7 @@ const TrainTab = (function () {
     if (obj.cstar) {
       pts.push(obj.cstar);
     } else if (obj.gap.side) {
-      // No minimum: show the ray the loss falls along, c0 = -c1 at.
+      // No minimum: show the ray the loss falls along, w0 = -w1 at.
       const c1 = 4 * obj.gap.side;
       pts.push([-c1 * obj.gap.at, c1]);
     }
@@ -114,15 +117,15 @@ const TrainTab = (function () {
     const right = x.filter((v, i) => (c[0] + c[1] * v > 0 ? 1 : 0) === y[i])
       .length;
     const rows = [
-      [`<b>c</b> = ${colVec(["<i>c</i>₀", "<i>c</i>₁"])}`, fmtCol(c)],
-      ["loss(<b>c</b>)", fmt(obj.f(c))],
-      ["∇loss(<b>c</b>)", fmtCol(g)],
-      ["‖∇loss(<b>c</b>)‖", fmt(Math.hypot(...g))],
+      [`<b>w</b> = ${colVec(["<i>w</i>₀", "<i>w</i>₁"])}`, fmtCol(c)],
+      ["loss(<b>w</b>)", fmt(obj.f(c))],
+      ["∇loss(<b>w</b>)", fmtCol(g)],
+      ["‖∇loss(<b>w</b>)‖", fmt(Math.hypot(...g))],
       ["accuracy", `${right} of ${x.length}`],
     ];
     if (obj.cstar) {
       rows.push(["min loss", fmt(obj.fmin)],
-        ["at <b>c</b>*", fmtCol(obj.cstar)]);
+        ["at <b>w</b>*", fmtCol(obj.cstar)]);
     } else {
       rows.push(["min loss", "none: falls toward 0"]);
     }
@@ -147,15 +150,16 @@ const TrainTab = (function () {
     $("tr-run").disabled = !stopRun && !!runner.status;
     $("tr-step").disabled = !!runner.status;
     $("tr-surf-hint").textContent = S.view === "3d"
-      ? "Drag to orbit, scroll to zoom. Drag the point c on the floor to "
+      ? "Drag to orbit, scroll to zoom. Drag the point w on the floor to "
         + "move it (hold Shift to change only one parameter); the "
         + "dropline is its loss."
-      : "Drag the point c, or click anywhere, to choose c. Hold Shift to "
+      : "Drag the point w, or click anywhere, to choose w. Hold Shift to "
         + "change only one parameter. After a step, hover the trail to see "
         + "that step's model.";
   }
 
   function render() {
+    if (!panel.drag) S.zr = zRange(shown(), panel.dom);
     view.render(obj, { c: runner.c, trail: runner.trail, eta: eta.get(),
       mode: S.view });
     panel.render();

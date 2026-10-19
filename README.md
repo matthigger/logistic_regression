@@ -11,20 +11,20 @@ Two tabs:
   regressing the probability directly is unbounded, so regress the log
   odds instead. A strip shows the raw data (xᵢ, yᵢ); hovering a sample
   walks it through xᵢ → zᵢ → p̂ᵢ → its loss, with read-off guides in both
-  panels below. The model is drawn twice, side by side: the line
-  z = c₀ + c₁x on the log-odds scale, and the sigmoid p̂ = σ(z) on the
-  probability scale. Drag a square handle in either panel
-  to pivot the model, or empty space to change c₀ alone; both panels
-  follow. Guides mark z = 0 ↔ p = 0.5 and z = ±2 ↔ p = 0.12 / 0.88, and the
-  log-odds panel's right edge reads each z tick as a probability. Each
-  sample is filled by its true class and ringed by its predicted class;
-  hover one for its z, p̂ and loss. Toggles show the best fit (min loss)
-  and the true P(Y = 1 | x).
+  panels below. Left: the line z = w₀ + w₁x on the log-odds scale. Right:
+  p̂ against z (the sigmoid itself, the default) or against x. Both share
+  one z range, fitted to the line (at least ±6) and held still while
+  dragging. Each axis has one set of grid lines labeled on both scales: z
+  lines with their σ(z), p̂ lines with their logit. Drag a square handle
+  to pivot the model, or empty space to change w₀ alone; both panels
+  follow. Each sample is filled by its true class and ringed by its
+  predicted class. Toggles show the best fit (min loss) and the true
+  P(Y = 1 | x).
 - **Training** (`#training`). Gradient descent on the mean cross-entropy
-  (nats): the loss surface over (c₀, c₁), as a contour map or orbitable 3D
+  (nats): the loss surface over (w₀, w₁), as a contour map or orbitable 3D
   mesh, linked both ways to the data panel (probability or log-odds view).
   Gradient step / Run / Reset start, a log-scale step size η, a loss-by-step
-  chart, and a readout of c, the loss, ∇loss and the minimum. Hover the
+  chart, and a readout of w, the loss, ∇loss and the minimum. Hover the
   trail to see any step's model.
 
 Both tabs share the data: 15 samples per class, each class's x normal with
@@ -60,7 +60,7 @@ shows ("local copy" when run locally).
 | `js/util.js` | SVG helpers, formatting, seeded RNG, sigmoid, eta slider |
 | `js/data.js` | shared data set; logistic loss, its minimum, separability |
 | `js/gd.js` | gradient-descent runner and run loop |
-| `js/surface.js` | sampled contour + 3D loss surface with the draggable c |
+| `js/surface.js` | sampled contour + 3D loss surface with the draggable w |
 | `js/chart.js` | loss-by-step chart |
 | `js/plots.js` | log-odds and probability panels; shared data controls |
 | `js/model.js` | Log odds → probability tab |

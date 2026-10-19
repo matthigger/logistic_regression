@@ -462,10 +462,8 @@ svg.orbit { cursor: grab; }
 .odds .dp-bg { cursor: ns-resize; }
 .zero { stroke: var(--ink); stroke-opacity: .35; stroke-width: 1.2;
   pointer-events: none; }
-.pguide { stroke: var(--ink); stroke-opacity: .3; stroke-width: 1;
-  stroke-dasharray: 4 4; pointer-events: none; }
-.bound { stroke: var(--ink); stroke-opacity: .6; stroke-width: 1.4;
-  stroke-dasharray: 2 4; pointer-events: none; }
+.bound { stroke: var(--ink); stroke-opacity: .35; stroke-width: 1.2;
+  pointer-events: none; }
 .bound-label { font-size: 12px; fill: var(--muted); pointer-events: none; }
 .ptick { font-size: 12px; }
 .axis-label.small { font-size: 13px; }
@@ -507,7 +505,7 @@ svg.orbit { cursor: grab; }
 .pipe {
   margin: 4px 2px 0;
   font-size: .95rem;
-  min-height: 2.9em;
+  min-height: 3.4em;
 }
 .pipe i, .pipe .m { font-family: "STIX Two Text", Georgia, serif; }
 .pipe .arr { color: var(--muted); margin: 0 .35em; }
@@ -516,3 +514,17 @@ svg.orbit { cursor: grab; }
   .panel.model > .strip, .panel.model > .side { grid-column: 1 / -1;
     grid-row: auto; }
 }
+.fo-label { overflow: visible; pointer-events: none; }
+.axis-html {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  white-space: nowrap;
+  color: var(--muted);
+  font: 17px/1.2 "STIX Two Text", Georgia, serif;
+  word-spacing: .1em;
+}
+.lh.ew { cursor: ew-resize; }
+.zaxis .xonly { display: none; }
+.plot-head .eq { margin-left: auto; }

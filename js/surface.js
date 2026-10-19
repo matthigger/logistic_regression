@@ -1,4 +1,5 @@
-// Loss surface over c = (c0, c1) for the training tab.
+// Loss surface over the weights (w0, w1), c in the code, for the training
+// tab.
 //
 // The logistic loss is convex but not quadratic, so it is sampled on a
 // grid: filled bands come from a canvas image and level lines from
